@@ -1,0 +1,13 @@
+.delete-btn {
+    margin: 0 10px;
+}
+
+.taskCompleted {
+    text-decoration: line-through;
+}
+
+p {
+    display: inline-block;
+}
+
+
