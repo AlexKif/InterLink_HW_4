@@ -1,57 +1,91 @@
 let todolist = [];
-let count = 0;
+const todosUrl = 'https://5da211fa76c28f0014bbe2e1.mockapi.io/todos';
+
+const ajaxPost = (url, params, callback) => {
+    const request = new XMLHttpRequest();
+
+    request.open('POST', url, false);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 || request.status === 200) {
+            callback(request.response);
+        }
+    };
+
+    request.send(params);
+};
+
+const ajaxDelete = (url, callback) => {
+    const request = new XMLHttpRequest();
+
+    request.open('DELETE', url, false);
+    request.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    request.onreadystatechange = function () {
+        if (request.readyState === 4 || request.status === 200) {
+            callback(request.response);
+        }
+    };
+    request.send(url);
+};
+
 
 if (JSON.parse(localStorage.getItem('todolist'))) {
     todolist = JSON.parse(localStorage.getItem('todolist'));
-    count = JSON.parse(localStorage.getItem('itemCount'));
     outputTodo();
 }
 
 document.getElementById('addTask').onclick = function () {
-    count++;
     let todoValue = document.getElementById('enterTask');
-    const temp = {};
-    temp.id = count;
-    temp.task = todoValue.value;
-    todolist.push(temp);
-    todoValue.value = '';
-    outputTodo();
-    localStorage.setItem('todolist', JSON.stringify(todolist));
-    localStorage.setItem('itemCount', JSON.stringify(count));
+    if (!todoValue.value) {
+        alert('Enter the task')
+    } else {
+        const temp = {};
+        temp.task = todoValue.value;
+        const todoParameters  = "task=" + temp.task;
+        ajaxPost(todosUrl, todoParameters, (response) => {
+            let responseTask = JSON.parse(response);
+            todolist.push(responseTask);
+            localStorage.setItem('todolist', JSON.stringify(todolist));
+        });
+        todoValue.value = '';
+        outputTodo();
+    }
 };
 
 function outputTodo() {
-    let output = '';
+    let output = ``;
+    for (let key in todolist) {
+        output += renderTask(key);
+    }
+    if (output) document.getElementById('toDo').innerHTML = output;
+}
+
+function renderTask(key) {
     const deleteBtn = '<button class="delete-btn" onclick="deleteTask(this)">Delete</button>';
     const editBtn = '<button class="edit-btn" onclick="editTask()">Edit</button>';
     const checkbox = '<input type="checkbox" class="checkbox" onclick="doneTask(this)">';
-    for (let key in todolist) {
-        output += '<div class="todoItem" data-id='+ todolist[key].id +'><label class="item-text">' + checkbox +todolist[key].task + '</label>'+ deleteBtn + editBtn +  '</div>'
-}
-    document.getElementById('toDo').innerHTML = output;
+    return `<div class="todoItem" data-id="${todolist[key].id}"><label class="item-text">${checkbox}${todolist[key].task}</label>${deleteBtn} ${editBtn}</div>`;
 }
 
 function doneTask(checkbox) {
     let labelCheckbox = checkbox.closest('.item-text');
     if (checkbox.checked) {
-        labelCheckbox.classList.add('taskCompleted');
-        // localStorage.setItem('done',);
+        labelCheckbox.classList.add('task-completed');
     } else {
-        labelCheckbox.classList.remove("taskCompleted");
+        labelCheckbox.classList.remove("task-completed");
     }
 }
 
-function deleteTask(index) {
-    const id = parseInt(index.parentNode.getAttribute('data-id'));
-    todolist.map((item, key) => {
-        if (item.id === id) {
-            const item = document.querySelector(`[data-id="${id}"]`);
-            item.parentNode.removeChild(item);
-            delete todolist[key];
-        }
+function deleteTask(deleteButton) {
+    const todoId = deleteButton.parentNode.getAttribute("data-id");
+    const todoTask = document.querySelector(`[data-id="${todoId}"]`);
+    ajaxDelete(todosUrl + "/" + todoId, response => {
+        console.log('response', response);
+        const id = parseInt(deleteButton.parentNode.getAttribute('data-id'));
+        todolist = todolist.filter(task =>  task.id != id);
     });
-    todolist = todolist.filter(Boolean);
-    localStorage.setItem('todolist', JSON.stringify(todolist))
+    todoTask.parentNode.removeChild(todoTask);
+    localStorage.setItem('todolist', JSON.stringify(todolist));
 }
 
 function editTask(test) {

@@ -2,12 +2,19 @@
     margin: 0 10px;
 }
 
-.taskCompleted {
+.task-completed {
     text-decoration: line-through;
+}
+
+#addTask {
+    margin-bottom: 10px;
+}
+
+#toDo {
+    border-top: 1px solid black;
+    padding-top: 5px;
 }
 
 p {
     display: inline-block;
 }
-
-
