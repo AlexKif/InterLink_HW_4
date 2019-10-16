@@ -41,6 +41,7 @@ document.getElementById('addTask').onclick = function () {
         const temp = {};
         temp.task = todoValue.value;
         const todoParameters  = "task=" + temp.task;
+        console.log(todoParameters);
         ajaxPost(todoUrl, todoParameters, (response) => {
             let responseTask = JSON.parse(response);
             todolist.push(responseTask);
@@ -95,4 +96,5 @@ function editTask(editBtn) {
             todolist[key].task = prompt('Edit task', todolist[key].task);
         }
     }
+    outputTodo();
 }
