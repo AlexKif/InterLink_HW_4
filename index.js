@@ -63,7 +63,9 @@ function renderTask(key) {
     const deleteBtn = '<button class="delete-btn" onclick="deleteTask(this)">Delete</button>';
     const editBtn = '<button class="edit-btn" onclick="editTask(this)">Edit</button>';
     const checkbox = '<input type="checkbox" class="checkbox" onclick="doneTask(this)">';
-    return `<div class="todoItem" data-id="${todolist[key].id}"><label class="item-text">${checkbox}${todolist[key].task}</label>${deleteBtn} ${editBtn}</div>`;
+    return `<div class="todoItem" data-id="${todolist[key].id}">
+                <label class="item-text">${checkbox}${todolist[key].task}</label>${deleteBtn} ${editBtn}
+            </div>`;
 }
 
 function doneTask(checkbox) {
@@ -87,17 +89,10 @@ function deleteTask(deleteButton) {
 }
 
 function editTask(editBtn) {
-    let newTask = {};
-    let taskItem = +editBtn.parentNode.getAttribute('data-id');
+    let taskItem = editBtn.parentNode.getAttribute('data-id');
     for (let key in todolist) {
-        if (todolist[key].id == taskItem) {
-            newTask.current = todolist[key].task;
-            newTask.id = todolist[key].id;
-            console.log('before', newTask);
-            let editTask = prompt('Edit task', newTask.current);
-            newTask.current = editTask;
-            console.log('after', newTask);
-
+        if (todolist[key].id === taskItem) {
+            todolist[key].task = prompt('Edit task', todolist[key].task);
         }
     }
 }
