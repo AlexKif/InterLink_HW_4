@@ -1,5 +1,5 @@
 let todolist = [];
-const todosUrl = 'https://5da211fa76c28f0014bbe2e1.mockapi.io/todos';
+const todoUrl = 'https://5da211fa76c28f0014bbe2e1.mockapi.io/todos';
 
 const ajaxPost = (url, params, callback) => {
     const request = new XMLHttpRequest();
@@ -28,7 +28,6 @@ const ajaxDelete = (url, callback) => {
     request.send(url);
 };
 
-
 if (JSON.parse(localStorage.getItem('todolist'))) {
     todolist = JSON.parse(localStorage.getItem('todolist'));
     outputTodo();
@@ -42,7 +41,7 @@ document.getElementById('addTask').onclick = function () {
         const temp = {};
         temp.task = todoValue.value;
         const todoParameters  = "task=" + temp.task;
-        ajaxPost(todosUrl, todoParameters, (response) => {
+        ajaxPost(todoUrl, todoParameters, (response) => {
             let responseTask = JSON.parse(response);
             todolist.push(responseTask);
             localStorage.setItem('todolist', JSON.stringify(todolist));
@@ -62,7 +61,7 @@ function outputTodo() {
 
 function renderTask(key) {
     const deleteBtn = '<button class="delete-btn" onclick="deleteTask(this)">Delete</button>';
-    const editBtn = '<button class="edit-btn" onclick="editTask()">Edit</button>';
+    const editBtn = '<button class="edit-btn" onclick="editTask(this)">Edit</button>';
     const checkbox = '<input type="checkbox" class="checkbox" onclick="doneTask(this)">';
     return `<div class="todoItem" data-id="${todolist[key].id}"><label class="item-text">${checkbox}${todolist[key].task}</label>${deleteBtn} ${editBtn}</div>`;
 }
@@ -79,8 +78,7 @@ function doneTask(checkbox) {
 function deleteTask(deleteButton) {
     const todoId = deleteButton.parentNode.getAttribute("data-id");
     const todoTask = document.querySelector(`[data-id="${todoId}"]`);
-    ajaxDelete(todosUrl + "/" + todoId, response => {
-        console.log('response', response);
+    ajaxDelete(todoUrl + "/" + todoId, response => {
         const id = parseInt(deleteButton.parentNode.getAttribute('data-id'));
         todolist = todolist.filter(task =>  task.id != id);
     });
@@ -88,6 +86,18 @@ function deleteTask(deleteButton) {
     localStorage.setItem('todolist', JSON.stringify(todolist));
 }
 
-function editTask(test) {
-    let x = test.parentNode;
+function editTask(editBtn) {
+    let newTask = {};
+    let taskItem = +editBtn.parentNode.getAttribute('data-id');
+    for (let key in todolist) {
+        if (todolist[key].id == taskItem) {
+            newTask.current = todolist[key].task;
+            newTask.id = todolist[key].id;
+            console.log('before', newTask);
+            let editTask = prompt('Edit task', newTask.current);
+            newTask.current = editTask;
+            console.log('after', newTask);
+
+        }
+    }
 }
